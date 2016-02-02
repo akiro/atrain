@@ -70,6 +70,7 @@
 
         this.timeDiff = ko.pureComputed(function () {
             if (self.actualTime != null) return self.actualTime.diff(self.scheduledTime, 'seconds');
+            else if (self.liveEstimateTime != null) return self.liveEstimateTime.diff(self.scheduledTime, 'seconds');
         });
 
         this.cssType = ko.pureComputed(function () {
@@ -92,13 +93,24 @@
                 dataType: 'json',
                 data: {
                     'station': self.startStation().stationShortCode,
-                    'minutes_before_departure': 90,
+                    'minutes_before_departure': 120,
                     'minutes_before_arrival': 0,
                     'minutes_after_departure': 15,
                     'minutes_after_arrival': 0
                 },
                 success: function (response) {
-                    var mappedTrains = $.map(response, function (item) { return new Train(item, self.startStation().stationShortCode) });
+                    var mappedTrains = $.map(response, function (item) {return new Train(item, self.startStation().stationShortCode)});
+
+                    if (self.endStation() != null) {
+                        mappedTrains = ko.utils.arrayFilter(mappedTrains, function (item) {
+                            var foundItem = ko.utils.arrayFirst(item.timetable, function (timeItem) {
+                                return timeItem.type == "ARRIVAL" && timeItem.stationShortCode == self.endStation().stationShortCode
+                            });
+
+                            return foundItem != null;
+                        });
+                    }
+
                     var mappedSortedTrains = mappedTrains.sort(function (left, right) {
                         var lTime = left.station() == null ? null : left.station().scheduledTime;
                         var rTime = right.station() == null ? null : right.station().scheduledTime;
@@ -125,10 +137,23 @@
         self.initStations = function (stationData) {
             self.stations(stationData);
 
-            if (params['station'] != null) {
-                self.startStation(self.findStation(params['station']));
-                self.search();
+            // if we get params perform initial search with those stations
+            if (params['from'] != null) {
+                var start = self.findStation(params['from'])
+                var end = null;
+                if (params['to'] != null) end = self.findStation(params['to']);
+
+                if (start != null && start != end) {
+                    self.startStation(start);
+                    if (params['to'] != null) self.endStation(end);
+                    self.search();
+                } else alert("Invalid parameters");
             }
+
+            // refresh once every 2min (server sets max-age 120)
+            setInterval(function () {
+                if (self.startStation() != null) self.search();
+            }, 121 * 1000);
         };
 
         // load initial data, cached in localStorage if possible
@@ -151,7 +176,7 @@
     };
 
     $(document).ready(function () {
-        // url params
+        // GET params
         var params = {}; window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) { params[key] = decodeURIComponent(value); });
 
         ko.applyBindings(new TrainListModel(params));
