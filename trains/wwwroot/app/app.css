@@ -1,0 +1,29 @@
+﻿html > body {
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
+    background-color: #454242;
+    color: #efefef;
+}
+th {
+    text-align: left;
+}
+td {
+    vertical-align: top;
+}
+ul {
+    margin: 0;
+}
+li {
+    list-style:none;
+}
+a{
+    color: #efefef;
+}
+.green {
+    color: #2c8605;
+}
+.blue {
+    color: #6c32ff;
+}
+.red {
+    color: #f52626;
+}
