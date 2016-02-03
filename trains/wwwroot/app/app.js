@@ -32,14 +32,15 @@
             return station==null?null:station.getTime('scheduledTime');
         });
 
-        self.liveEstimateTime = ko.pureComputed(function () {
-            var station = self.station();
-            return station == null ? null : station.getTime('liveEstimateTime');
-        });
-
         self.actualTime = ko.pureComputed(function () {
             var station = self.station();
-            return station == null ? null : station.getTime('actualTime');
+
+            if(station != null) {
+                var actual = station.getTime('actualTime');
+                return actual == null? station.getTime('liveEstimateTime') : actual;
+            }
+
+            return null;
         });
 
         self.timeDiff = ko.pureComputed(function () {
@@ -47,6 +48,10 @@
             return station == null ? null : station.timeDiff();
         });
         
+        self.platform = ko.pureComputed(function () {
+            var station = self.station();
+            return station == null ? null : station.commercialTrack;
+        })
     };
 
     var Station = function (item) {
@@ -63,9 +68,10 @@
         this.scheduledTime = item.scheduledTime?moment(item.scheduledTime):null;
         this.actualTime = item.actualTime ? moment(item.actualTime) : null;
         this.liveEstimateTime = item.liveEstimateTime ? moment(item.liveEstimateTime) : null;
+        this.commercialTrack = item.commercialTrack;
 
         this.getTime = function (time) {
-            return this[time] == null ? '-' : this[time].format('HH:mm:ss');
+            return self[time] == null ? null : self[time].format('HH:mm:ss');
         };
 
         this.timeDiff = ko.pureComputed(function () {
@@ -75,6 +81,11 @@
 
         this.cssType = ko.pureComputed(function () {
             return self.type === "DEPARTURE" ? "fa-arrow-left green" : "fa-arrow-right blue";
+        });
+
+        self.actualTimeTxt = ko.pureComputed(function () {
+            var actual = self.getTime('actualTime');
+            return actual == null ? self.getTime('liveEstimateTime') : actual;
         });
     };
 
@@ -86,6 +97,7 @@
         self.trains = ko.observableArray([]);
         self.startStation = ko.observable();
         self.endStation = ko.observable();
+        self.showSearch = ko.observable(true);
 
         self.search = function () {
             $.ajax({
@@ -134,6 +146,20 @@
             });
         };
 
+        self.fromName = ko.pureComputed(function () {
+            var station = self.startStation();
+            return station == null ? null : self.stationName(station.stationShortCode);
+        });
+
+        self.toName = ko.pureComputed(function () {
+            var station = self.endStation();
+            return station == null ? null : self.stationName(station.stationShortCode);
+        });
+
+        self.toggleSearch = function () {
+            self.showSearch(!self.showSearch());
+        };
+
         self.initStations = function (stationData) {
             self.stations(stationData);
 
@@ -146,6 +172,7 @@
                 if (start != null && start != end) {
                     self.startStation(start);
                     if (params['to'] != null) self.endStation(end);
+                    self.showSearch(false);
                     self.search();
                 } else alert("Invalid parameters");
             }
