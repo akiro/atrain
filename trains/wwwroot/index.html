@@ -62,7 +62,10 @@
                         <td data-bind="text: scheduledTime"></td>
                         <td data-bind="text: actualTime"></td>
                         <td>
-                            <span data-bind="text: timeDiff,css:{green:timeDiff() <=0,red:timeDiff() > 0}"></span>
+                            <span data-bind="css:{green:timeDiff().asSeconds() <=0,red:timeDiff().asSeconds() > 0}">
+                                <span data-bind="visible:timeDiff().get('minutes') != 0,text: timeDiff().get('minutes')+'m '"></span>
+                                <span data-bind="visible:timeDiff().get('seconds') != 0,text: timeDiff().get('seconds')+'s'"></span>
+                            </span>
                             <span class="red" data-bind="visible: cancelled">Peruttu</span>
                         </td>
                     </tr>
@@ -75,7 +78,10 @@
                         <td data-bind="text: commercialTrack"></td>
                         <td data-bind="text: getTime('scheduledTime')"></td>
                         <td data-bind="text: actualTimeTxt"></td>
-                        <td data-bind="text: timeDiff,css:{green:timeDiff() <=0,red:timeDiff() > 0}"></td>
+                        <td data-bind="css:{green:timeDiff().asSeconds() <=0,red:timeDiff().asSeconds() > 0}">
+                            <span data-bind="visible:timeDiff().get('minutes') != 0,text: timeDiff().get('minutes')+'m '"></span>
+                            <span data-bind="visible:timeDiff().get('seconds') != 0,text: timeDiff().get('seconds')+'s'"></span>
+                        </td>
                     </tr>
                     <!-- /ko -->
                 </tbody>

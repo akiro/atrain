@@ -77,8 +77,9 @@
         };
 
         this.timeDiff = ko.pureComputed(function () {
-            if (self.actualTime != null) return self.actualTime.diff(self.scheduledTime, 'seconds');
-            else if (self.liveEstimateTime != null) return self.liveEstimateTime.diff(self.scheduledTime, 'seconds');
+            if (self.actualTime != null) return moment.duration(self.actualTime.diff(self.scheduledTime));
+            else if (self.liveEstimateTime != null) return moment.duration(self.liveEstimateTime.diff(self.scheduledTime));
+            else return moment.duration(0);
         });
 
         this.cssType = ko.pureComputed(function () {
