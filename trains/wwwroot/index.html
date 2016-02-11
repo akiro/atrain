@@ -61,7 +61,10 @@
                         <td data-bind="text: platform"></td>
                         <td data-bind="text: scheduledTime"></td>
                         <td data-bind="text: actualTime"></td>
-                        <td data-bind="text: timeDiff,css:{green:timeDiff() <=0,red:timeDiff() > 0}"></td>
+                        <td>
+                            <span data-bind="text: timeDiff,css:{green:timeDiff() <=0,red:timeDiff() > 0}"></span>
+                            <span class="red" data-bind="visible: cancelled">Peruttu</span>
+                        </td>
                     </tr>
 
                     <!-- ko foreach: timetable -->

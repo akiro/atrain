@@ -7,6 +7,8 @@
         });
         self.trainNumber = item.trainNumber;
         self.commuterLineID = item.commuterLineID;
+        self.cancelled = item.cancelled;
+
         self.stationShortCode = stationShortCode;
         self.showDetails = ko.observable(false);
 
