@@ -16,10 +16,10 @@
             A-train
         </h1>
     </header>
-    
+
     <main>
         <div id="content">
-            <form data-bind="submit: search" id="searchForm">
+            <form data-bind="submit: update" id="searchForm">
                 <a href="#" data-bind="click: toggleSearch"><i class="fa fa-search fa-lg"></i></a>
 
                 <span data-bind="visible: showSearch" style="display: none;">
@@ -110,6 +110,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/path.js/0.8.4/path.min.js"></script>
     <script src="app/app.js"></script>
 </body>
 </html>

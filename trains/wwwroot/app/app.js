@@ -13,7 +13,7 @@
         self.showDetails = ko.observable(false);
 
         self.destination = ko.pureComputed(function () {
-            return self.timetable[self.timetable.length-1];
+            return self.timetable[self.timetable.length - 1];
         });
 
         self.toggleDetails = function () {
@@ -31,15 +31,15 @@
 
         self.scheduledTime = ko.pureComputed(function () {
             var station = self.station();
-            return station==null?null:station.getTime('scheduledTime');
+            return station == null ? null : station.getTime('scheduledTime');
         });
 
         self.actualTime = ko.pureComputed(function () {
             var station = self.station();
 
-            if(station != null) {
+            if (station != null) {
                 var actual = station.getTime('actualTime');
-                return actual == null? station.getTime('liveEstimateTime') : actual;
+                return actual == null ? station.getTime('liveEstimateTime') : actual;
             }
 
             return null;
@@ -49,7 +49,7 @@
             var station = self.station();
             return station == null ? null : station.timeDiff();
         });
-        
+
         self.platform = ko.pureComputed(function () {
             var station = self.station();
             return station == null ? null : station.commercialTrack;
@@ -67,7 +67,7 @@
         var self = this;
         this.type = item.type;
         this.stationShortCode = item.stationShortCode;
-        this.scheduledTime = item.scheduledTime?moment(item.scheduledTime):null;
+        this.scheduledTime = item.scheduledTime ? moment(item.scheduledTime) : null;
         this.actualTime = item.actualTime ? moment(item.actualTime) : null;
         this.liveEstimateTime = item.liveEstimateTime ? moment(item.liveEstimateTime) : null;
         this.commercialTrack = item.commercialTrack;
@@ -92,7 +92,7 @@
         });
     };
 
-    var TrainListModel = function (params) {
+    var TrainListModel = function () {
         var self = this;
         self.api = 'http://rata.digitraffic.fi/api/v1/';
 
@@ -114,7 +114,7 @@
                     'minutes_after_arrival': 0
                 },
                 success: function (response) {
-                    var mappedTrains = $.map(response, function (item) {return new Train(item, self.startStation().stationShortCode)});
+                    var mappedTrains = $.map(response, function (item) { return new Train(item, self.startStation().stationShortCode) });
 
                     if (self.endStation() != null) {
                         mappedTrains = ko.utils.arrayFilter(mappedTrains, function (item) {
@@ -129,14 +129,14 @@
                     var mappedSortedTrains = mappedTrains.sort(function (left, right) {
                         var lTime = left.station() == null ? null : left.station().scheduledTime;
                         var rTime = right.station() == null ? null : right.station().scheduledTime;
-                        return lTime == rTime?0:(lTime<rTime?-1:1);
+                        return lTime == rTime ? 0 : (lTime < rTime ? -1 : 1);
                     });
                     self.trains(mappedSortedTrains);
                 }
             });
         };
 
-        self.findStation = function(stationShortCode) {
+        self.findStation = function (stationShortCode) {
             return ko.utils.arrayFirst(self.stations(), function (item) {
                 return item.stationShortCode == stationShortCode;
             });
@@ -145,7 +145,7 @@
         self.stationName = function (stationShortCode) {
             return ko.pureComputed(function () {
                 var station = self.findStation(stationShortCode);
-                return station == null ? stationShortCode : station.stationName.replace(' asema','');
+                return station == null ? stationShortCode : station.stationName.replace(' asema', '');
             });
         };
 
@@ -163,27 +163,29 @@
             self.showSearch(!self.showSearch());
         };
 
-        self.initStations = function (stationData) {
-            self.stations(stationData);
+        // update url / trigger search when changing stations
+        self.update = function () {
+            var url = '';
+            if (self.startStation() != null) url = '#/' + self.startStation().stationShortCode;
+            if (self.endStation() != null) url += '/' + self.endStation().stationShortCode;
+            if (url != '') window.location = url;
+        }
 
-            // if we get params perform initial search with those stations
+        // if we get params perform initial search with provided values
+        self.load = function (params) {
             if (params['from'] != null) {
-                var start = self.findStation(params['from'])
+                var start = self.findStation(params['from']);
                 var end = null;
                 if (params['to'] != null) end = self.findStation(params['to']);
 
                 if (start != null && start != end) {
                     self.startStation(start);
                     if (params['to'] != null) self.endStation(end);
+                    else self.endStation(null);
                     self.showSearch(false);
                     self.search();
-                } else alert("Invalid parameters");
+                }
             }
-
-            // refresh once every 2min (server sets max-age 120)
-            setInterval(function () {
-                if (self.startStation() != null) self.search();
-            }, 121 * 1000);
         };
 
         // load initial data, cached in localStorage if possible
@@ -194,21 +196,36 @@
                 dataType: 'json',
                 success: function (response) {
                     var mappedStations = $.map(response, function (item) {
-                        if (item.passengerTraffic) return new Station(item)
+                        if (item.passengerTraffic) return new Station(item);
                     });
                     localStorage.setItem('stations', JSON.stringify(mappedStations));
-                    self.initStations(mappedStations);
+                    self.stations(mappedStations);
                 }
             });
         } else {
-            self.initStations(JSON.parse(storageStations));
+            self.stations(JSON.parse(storageStations));
         }
+
+        // refresh once every 2min (server sets max-age 120)
+        setInterval(function () {
+            if (self.startStation() != null) self.search();
+        }, 121 * 1000);
     };
 
+    // bootstrap
     $(document).ready(function () {
-        // GET params
-        var params = {}; window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) { params[key] = decodeURIComponent(value); });
+        // set up knockout model
+        var model = new TrainListModel();
+        ko.applyBindings(model);
 
-        ko.applyBindings(new TrainListModel(params));
+        // set up paths
+        Path.map('#/:from/:to').to(function () {
+            model.load(this.params);
+        });
+        Path.map('#/:from').to(function () {
+            model.load(this.params);
+        });
+        Path.root("#/HKI/MÄK"); // dev test path
+        Path.listen();
     });
 }());
