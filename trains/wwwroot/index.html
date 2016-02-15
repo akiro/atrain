@@ -22,7 +22,7 @@
             <form data-bind="submit: search" id="searchForm">
                 <a href="#" data-bind="click: toggleSearch"><i class="fa fa-search fa-lg"></i></a>
 
-                <span data-bind="visible: showSearch">
+                <span data-bind="visible: showSearch" style="display: none;">
                     <select data-bind="options: stations,
                     optionsText: 'stationName',
                     optionsCaption: '-- Valitse --',
@@ -70,8 +70,9 @@
                         </td>
                     </tr>
 
+                    <!-- ko if: showDetails -->
                     <!-- ko foreach: timetable -->
-                    <tr data-bind="visible: $parent.showDetails">
+                    <tr>
                         <td></td>
                         <td><i class="fa" data-bind="css: cssType"></i></td>
                         <td data-bind="text: $root.stationName(stationShortCode)"></td>
@@ -83,6 +84,7 @@
                             <span data-bind="visible:timeDiff().get('seconds') != 0,text: timeDiff().get('seconds')+'s'"></span>
                         </td>
                     </tr>
+                    <!-- /ko -->
                     <!-- /ko -->
                 </tbody>
             </table>
