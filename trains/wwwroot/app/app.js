@@ -31,7 +31,7 @@
 
         self.scheduledTime = ko.pureComputed(function () {
             var station = self.station();
-            return station == null ? null : station.getTime('scheduledTime');
+            return station == null ? null : station.scheduledTime;
         });
 
         self.actualTime = ko.pureComputed(function () {

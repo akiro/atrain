@@ -61,3 +61,14 @@ a{
 #content {
     padding: 1em;
 }
+.separatorRow td{
+    padding: 0;
+}
+.separatorRow hr{
+    margin: 0; 
+    padding: 0; 
+    border: none; 
+    height: 1px; 
+    color:#ccc; 
+    background-color: #ccc;
+}

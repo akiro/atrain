@@ -59,7 +59,7 @@
                         <td data-bind="text: commuterLineID"></td>
                         <td data-bind="text: $root.stationName(destination().stationShortCode)"></td>
                         <td data-bind="text: platform"></td>
-                        <td data-bind="text: scheduledTime"></td>
+                        <td data-bind="text: scheduledTime().format('HH:mm:ss')"></td>
                         <td data-bind="text: actualTime"></td>
                         <td>
                             <span data-bind="css:{green:timeDiff().asSeconds() <=0,red:timeDiff().asSeconds() > 0}">
@@ -68,6 +68,10 @@
                             </span>
                             <span class="red" data-bind="visible: cancelled">Peruttu</span>
                         </td>
+                    </tr>
+
+                    <tr data-bind="visible:scheduledTime() < moment() " class="separatorRow">
+                        <td colspan="7"><hr/></td>
                     </tr>
 
                     <!-- ko if: showDetails -->
