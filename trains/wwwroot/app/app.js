@@ -101,8 +101,10 @@
         self.startStation = ko.observable();
         self.endStation = ko.observable();
         self.showSearch = ko.observable(true);
+        self.alreadyChecked = false;
 
         self.search = function () {
+            self.alreadyChecked = false;
             $.ajax({
                 url: self.api + 'live-trains',
                 dataType: 'json',
@@ -161,6 +163,15 @@
 
         self.toggleSearch = function () {
             self.showSearch(!self.showSearch());
+        };
+
+        
+        self.check = function (checkTime) {
+            if (self.alreadyChecked) return false;
+            if (checkTime > moment()) {
+                self.alreadyChecked = true;
+                return true;
+            }
         };
 
         // update url / trigger search when changing stations

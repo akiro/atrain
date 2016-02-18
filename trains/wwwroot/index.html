@@ -54,6 +54,9 @@
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: trains">
+                    <tr data-bind="visible: $root.check(scheduledTime()) && $index() > 0" class="separatorRow">
+                        <td colspan="7"><hr /></td>
+                    </tr>
                     <tr>
                         <td><a href="" data-bind="click: toggleDetails"><i class="fa" data-bind="css:{'fa-minus':showDetails(),'fa-plus':!showDetails()}"></i></a></td>
                         <td data-bind="text: commuterLineID"></td>
@@ -68,10 +71,6 @@
                             </span>
                             <span class="red" data-bind="visible: cancelled">Peruttu</span>
                         </td>
-                    </tr>
-
-                    <tr data-bind="visible:scheduledTime() < moment() " class="separatorRow">
-                        <td colspan="7"><hr/></td>
                     </tr>
 
                     <!-- ko if: showDetails -->
